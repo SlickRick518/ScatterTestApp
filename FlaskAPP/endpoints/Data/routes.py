@@ -39,7 +39,7 @@ data = Blueprint('data', __name__)
 
 # Divdies to get milliseconds, then subtracts from the start time to get interval
 def convert(nano, testStartTime):
-    return (((nano / 10000000) - (testStartTime / 10000000)))
+    return (nano - testStartTime) / 1000000
 
 
 @data.route("/data/upload_patient_test_data", methods=['POST'])
@@ -64,7 +64,7 @@ def upload_patient_test_data():
         testName = "AlphabetTest.json"
 
     # Get the difference in time from start to end, then convert to seconds
-    convertToSeconds = ((testEndTime / 100000000) - (testStartTime / 100000000))
+    convertToSeconds = (testEndTime - testStartTime) / 100000000
     testLength = str(datetime.timedelta(seconds=convertToSeconds))
 
     # Target symbol to circle
