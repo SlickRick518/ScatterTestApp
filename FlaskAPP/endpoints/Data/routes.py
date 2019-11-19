@@ -36,12 +36,7 @@ class DoctorFileSchema(ma.ModelSchema):
 
 data = Blueprint('data', __name__)
 
-
 # Divdies to get milliseconds, then subtracts from the start time to get interval
-def convert(nano, testStartTime):
-    return (nano - testStartTime) / 1000000
-
-
 @data.route("/data/upload_patient_test_data", methods=['POST'])
 def upload_patient_test_data():
     try:
@@ -64,8 +59,8 @@ def upload_patient_test_data():
         testName = "AlphabetTest.json"
 
     # Get the difference in time from start to end, then convert to seconds
-    convertToSeconds = (testEndTime - testStartTime) / 100000000
-    testLength = str(datetime.timedelta(seconds=convertToSeconds))
+    length = testEndTime - testStartTime
+    testLength = datetime.timedelta(seconds=length)
 
     # Target symbol to circle
     targetSymbol = testData["answerSymbol"]
@@ -89,8 +84,8 @@ def upload_patient_test_data():
         currentTouchDataArray = testData["patientAnswerTouchData"][i]
 
         # Get intervals 
-        beginTime = convert(currentTouchDataArray[0]['time'], testStartTime)
-        endTime = convert(currentTouchDataArray[len(currentTouchDataArray)-1]['time'], testStartTime)
+        beginTime = currentTouchDataArray[0]['time']
+        endTime = currentTouchDataArray[len(currentTouchDataArray)-1]['time']
         totalTime = endTime - beginTime
 
         # Create a row for circle, then add it
@@ -116,7 +111,8 @@ def upload_patient_test_data():
                 
                 # you have access to each point in the touch array
                 PressureRow = Pressure(TestID = testID, CircleID = i+1, PressureID = PressureIDCounter,
-                    Xcoord = point['x'], Ycoord = point['y'], Pressure = point['force'])
+                    Xcoord = point['x'], Ycoord = point['y'], Pressure = point['force'], 
+                    Azimuth= point['azimuthAngle'], PenAltitude = point['altitudeAngle'])
                 PressureIDCounter += 1
                 db.session.add(PressureRow)
 

@@ -9,4 +9,6 @@ class Pressure(db.Model):
     Xcoord = db.Column(db.Float)
     Ycoord = db.Column(db.Float)
     Pressure = db.Column(db.Float)
+    Azimuth = db.Column(db.Float)
+    PenAltitude = db.Column(db.Float)
     
