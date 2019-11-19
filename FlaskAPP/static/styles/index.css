@@ -1,6 +1,5 @@
 .welcome {
-    position: absolute;
-    right: 25%;
+    text-align: center;
     font-size: 30px;
     color: black;
 }
@@ -12,15 +11,17 @@
 }
 .column {
     display: flex;
+    text-align: center;
 }
 .row {
     flex: 50%;
     color: black;
+    align-content: center;
+    
    
 }
 
 .container {
-    padding-top: 5%;
-    padding-right: 20%;    
+    align-content: center;
 }
  

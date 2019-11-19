@@ -8,14 +8,14 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='styles/datatable.css') }}">
 
 <div class="table">
-    <table class="display" id="example">
+    <table class="display" id="patientTable">
         <thead>
             <tr>
                 <th>TestID</th>
                 <th>PatientID</th>
                 <th>Date Taken</th>
                 <th>Test Data</th>
-                <th>Questionaire</th>
+                <th>Questionnaire</th>
             </tr>
         </thead>
     
@@ -26,10 +26,10 @@
                 <td>{{ item['PatientID'] }}</td>
                 <td>{{ item['DateTaken'] }}</td>
                 <td>            
-                    <a href="/data/get_excel?id={{ item['TestID'] }}&selection=1">Download</a>
+                    <a href="/data/get_test_data_excel?id={{ item['TestID'] }}">Download</a>
                 </td>
                 <td>            
-                    <a href="/data/get_excel?id={{ item['TestID'] }}&selection=2"> Download </a>
+                    <a href="/data/get_questionnaire_excel?id={{ item['TestID'] }}"> Download </a>
                 </td>
             </tr>
         {% endfor %}
