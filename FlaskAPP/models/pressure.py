@@ -10,3 +10,4 @@ class Pressure(db.Model):
     Ycoord = db.Column(db.Float)
     Pressure = db.Column(db.Float)
     
+    

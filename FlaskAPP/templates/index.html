@@ -3,7 +3,56 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/centered.css') }}">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/index.css') }}">
 
-<h1 class="centered">Logged in as <br> {{user.email}}</h1>
+<style>
+body {
+    background: #cccccc;/*#058bb8; */
+}
+</style>
+
+<h1 class="welcome">Welcome to the Cancellation Test Dr. {{user.DoctorName}}</h1>
+
+
+
+<div class="container">
+  <div class="MAV"> 
+    <video src="{{ url_for('static',filename='images/Mid-Assessment_Video.mp4')}}" 
+    width ="850px" height ="390px" controls></video>
+  </div>
+  <div class="column">
+    <div class="row">
+          <p>The Cancellation Test application was developed
+                  to digitize dementia detection tests that at the time of creation were 
+                  filled with human error and not enough data due to the nature of the tests. 
+                  The Cancellation Test looks to take advantage of computer processing by allowing to 
+                  have more forms of data, more precise data, and a higher rate of tests. 
+                  The test in particular this application is focusing on is as follows:
+                  A symbol is chosen as the "correct symbol" and will be the target of the patient,
+                  a coordinate plane is drawn and split into four quadrants. Each quadrant is filled with 15 
+                  of these "correct symbols" and a mass of other "incorrect symbols". The patient is then asked
+                  to circle as many or all "correct symbols" in a defined time.
+                  While being able to track time more effectively, we also have the ability to add 
+                  the pressure at which a patient circles a symbol, the length of 
+                  time elapsed in the drawing of a single circle, and the latency between each circle.
+                  With this new data we hope to be able to get closer and closer to detecting dementia as early as possible.</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="width: 16rem;">
+  <img src="https://www.faculty360.com/static/images/login-icon.7c00f1434c5b.svg"class="card-img-top" height="80px">
+  <div class="card-body">
+    <h5 class="card-title">Quick Menu</h5>
+  </div>
+  <ul class="list-group list-group-flush">
+    <!--does not do corrrect thing-->
+    <li class="list-group-item"><a href="/logout" class="card-link">Change Profile</a></li>
+    <li class="list-group-item"><a href="/patients" class="card-link">View Patients</a></li>
+    <li class="list-group-item"><a href="/settings" class="card-link">Manage Tests</a></li>
+    <li class="list-group-item"><a href="/logout" class="card-link">Logout</a></li>
+  </ul>
+</div>
+
 {% endblock %}
