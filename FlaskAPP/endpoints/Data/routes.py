@@ -36,12 +36,7 @@ class DoctorFileSchema(ma.ModelSchema):
 
 data = Blueprint('data', __name__)
 
-
 # Divdies to get milliseconds, then subtracts from the start time to get interval
-def convert(nano, testStartTime):
-    return (nano - testStartTime) / 1000000
-
-
 @data.route("/data/upload_patient_test_data", methods=['POST'])
 def upload_patient_test_data():
     try:
@@ -64,8 +59,8 @@ def upload_patient_test_data():
         testName = "AlphabetTest.json"
 
     # Get the difference in time from start to end, then convert to seconds
-    convertToSeconds = (testEndTime - testStartTime) / 100000000
-    testLength = str(datetime.timedelta(seconds=convertToSeconds))
+    length = testEndTime - testStartTime
+    testLength = datetime.timedelta(seconds=length)
 
     # Target symbol to circle
     targetSymbol = testData["answerSymbol"]
@@ -89,12 +84,12 @@ def upload_patient_test_data():
         currentTouchDataArray = testData["patientAnswerTouchData"][i]
 
         # Get intervals 
-        beginTime = convert(currentTouchDataArray[0]['time'], testStartTime)
-        endTime = convert(currentTouchDataArray[len(currentTouchDataArray)-1]['time'], testStartTime)
+        beginTime = currentTouchDataArray[0]['time']
+        endTime = currentTouchDataArray[len(currentTouchDataArray)-1]['time']
         totalTime = endTime - beginTime
 
         # Create a row for circle, then add it
-        CircleRow = Circles(TestID = testID, CircleID = i, 
+        CircleRow = Circles(TestID = testID, CircleID = i+1, 
                 symbol = currentSymbol['name'], begin_circle = beginTime,
                 end_circle = endTime, total_time = totalTime)
 
@@ -111,12 +106,13 @@ def upload_patient_test_data():
         currentTouchDataArray = testData["patientAnswerTouchData"][i]    
         
         # Loop through Touch Data, PressureIDCounter counts each touch made, per circle
-        PressureIDCounter = 0
+        PressureIDCounter = 1
         for point in currentTouchDataArray:
                 
                 # you have access to each point in the touch array
-                PressureRow = Pressure(TestID = testID, CircleID = i, PressureID = PressureIDCounter,
-                    Xcoord = point['x'], Ycoord = point['y'], Pressure = point['force'])
+                PressureRow = Pressure(TestID = testID, CircleID = i+1, PressureID = PressureIDCounter,
+                    Xcoord = point['x'], Ycoord = point['y'], Pressure = point['force'], 
+                    Azimuth= point['azimuthAngle'], PenAltitude = point['altitudeAngle'])
                 PressureIDCounter += 1
                 db.session.add(PressureRow)
 
@@ -170,7 +166,6 @@ def getList():
     fileList = JSONFiles.query.all()
     file_schema = JSONFileSchema(many=True, only=['name'])
     output = file_schema.dump(fileList)
-    
     return jsonify(output)
 # make sure to perform error checking - this endpoint is open to anyone
 
@@ -181,10 +176,10 @@ def getDoctorList():
     output = doctor_schema.dump(doctorList)
     return jsonify(output)
 
-@data.route("/data/download_questions", methods=['POST', 'GET'])
+@data.route("/data/download_questions", methods=['GET'])
 def download_questions():
 
-    questions = Questions.query.order_by(func.rand()).limit(5)
+    questions = Questions.query.order_by(Questions.QuestionID).all()
     question_schema = QuestionSchema(many=True)
     output = question_schema.dump(questions)
     return jsonify(output)

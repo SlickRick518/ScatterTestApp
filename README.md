@@ -52,7 +52,7 @@ set FLASK_APP=FlaskAPP
 set FLASK_ENV=development
 ```
 
-Create a config file using the config_example.py file located in FlaskAPP and set the values
+Create a config file using the config_example.py file located in FlaskAPP and set the values.
 Then run the flask app!
 ```
 flask run
