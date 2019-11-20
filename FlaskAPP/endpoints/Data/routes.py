@@ -214,9 +214,8 @@ def get_test_data_excel():
     circles = db.engine.execute("SELECT * FROM test.circles WHERE TestID='{id}';".format(id=test_id))
     pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
 
-    circle_fill(raw_circle, testinfo, circles)  # generate circle file
-
-    pressure_fill(raw_pressure, pressure)  # generate pressure file
+    circle_fill(raw_circle, testinfo, circles, workbook)  # generate circle file
+    pressure_fill(raw_pressure, pressure, workbook)  # generate pressure file
 
     workbook.close()
     return send_file(dir_path + filename, as_attachment=True)  # send file as attachment

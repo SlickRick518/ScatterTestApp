@@ -1,32 +1,30 @@
-form {
+#form-login {
   width: 25%;
   background-color: #d6d6d6;
   position: absolute;
   top: 50%;
-  left:50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   border: 1px solid #d6d6d6;
   border-radius: 3px;
   padding: 30px 60px;
-  box-shadow: 0px 0px 20px 0px rgba(204,204,204,1);
+  box-shadow: 0px 0px 20px 0px rgba(204, 204, 204, 1);
 }
 
-form button {
+#form-login button {
   margin-top: 15px;
   margin-bottom: 5px;
   width: 100%;
 }
 
-
-@media only screen and (max-width: 600px) {{
-  form {
+@media only screen and (max-width: 600px) {
+  #form-login {
     width: 90%;
     padding: 10px 5px;
   }
-  }
 
-  @media only screen and (max-width: 1200px) {{
-  form {
-    width: 60%;
-  }
+  @media only screen and (max-width: 1200px) {
+    #form-login {
+      width: 60%;
+    }
   }

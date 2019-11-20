@@ -71,6 +71,9 @@ def settings_view():
     else:
         return render_template('Login/login.html', form=LoginForm())
 
+#what about delete?
+#what about replacement?
+
 # Download link for JSON files
 @login_required
 @settings.route('/settings/download/<filename>')
