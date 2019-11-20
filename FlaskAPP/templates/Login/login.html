@@ -1,33 +1,26 @@
-<!--Login Page, startup Page on the website-->
-
-<!-- Lets render the "layout" template -->
-{% extends 'login_base.html' %}
+{% extends 'layout.html' %}
+{% block css %}
+{{ super () }}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
+{% endblock %}
 
 {% block content %}
-
-<!-- Grabbing the CSS-->
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
-
-<!--Form to login-->
-  <form method="post" role="form" action="{{ url_for('login.login_view') }}">
-    <!--Enables login form-->
-      {{ form.csrf_token }}
-   <div class="text-center">
-    <!--Image for login-->
-	 <img src="https://www.faculty360.com/static/images/login-icon.7c00f1434c5b.svg" height=80px>
-     <h2>Login</h2>
-     <hr>
-   </div>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required autofocus>
-   </div>
-   <div class="form-group">
-      <label for="password">Password</label>
-      <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Sign in</button>
-    <a href="forget_pw">forgot password?</a>
-  </form>
-
+<form method="post" id="form-login" role="form" action="{{ url_for('login.login_view') }}">
+  {{ form.csrf_token }}
+  <div class="text-center">
+    <img src="{{ url_for('static', filename='images/login-icon.svg') }}" height=80px>
+    <h2>Login</h2>
+    <hr>
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required autofocus>
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Sign in</button>
+  <button class="btn btn-danger" data-toggle="modal" data-target="#div_forgot_pwd" type="button">Forgot Password?</a>
+</form>
 {% endblock %}

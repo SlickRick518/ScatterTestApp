@@ -17,6 +17,7 @@ from random import randint
 import flask_marshmallow
 import xlsxwriter
 import datetime, time
+from .Util import circle_fill, pressure_fill
 
 app = Flask(__name__)
 
@@ -191,8 +192,8 @@ def download_questions():
 #  ***Will need to implement a garbage collector for /file-downloads folder after X (hours/day)***
 
 
-@data.route('/data/get_excel', methods=['GET'])
-def get_excel():
+@data.route('/data/get_test_data_excel', methods=['GET'])
+def get_test_data_excel():
     test_id = request.args.get('id', None)
     selection = request.args.get('selection', None)
     testinfo = TestFrame.query.filter_by(TestID=test_id).first()  # get test info
@@ -200,58 +201,40 @@ def get_excel():
     row = 1
     col = 0
 
-    if selection == '1':  # User requested download for DATA
+    dir_path = Config.APP_ROOT + '/file-downloads/'
+    filename = "{id}_testdata".format(id=testinfo.PatientID) + str(round(time.time())) + ".xlsx"
+
+    workbook = xlsxwriter.Workbook(dir_path + filename)  # Create xlsx file
+    #  formula = workbook.add_worksheet('formula')
+    raw_circle = workbook.add_worksheet('circle')
+    raw_pressure = workbook.add_worksheet('pressure')
+    final = workbook.add_worksheet('formula')
+
+    # Grab all points from table
+    circles = db.engine.execute("SELECT * FROM test.circles WHERE TestID='{id}';".format(id=test_id))
+    pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
+
+    circle_fill(raw_circle, testinfo, circles, workbook)  # generate circle file
+    pressure_fill(raw_pressure, pressure, workbook)  # generate pressure file
+
+    workbook.close()
+    return send_file(dir_path + filename, as_attachment=True)  # send file as attachment
+
+@data.route('/data/get_questionnaire_excel')
+def get_questionnaire_excel():
+        test_id = request.args.get('id', None)
+        selection = request.args.get('selection', None)
+        testinfo = TestFrame.query.filter_by(TestID=test_id).first()  # get test info
+
+        # @TODO: move to Util.py file
         dir_path = Config.APP_ROOT + '/file-downloads/'
-        filename = "{id}_testdata.xlsx".format(id=testinfo.PatientID)
-        if os.path.isfile(dir_path + filename):  # check to see if file already exists
-            return send_file(dir_path + filename, as_attachment=True)
-
-        workbook = xlsxwriter.Workbook(dir_path + filename)  # Create xlsx file
-        formula = workbook.add_worksheet()
-        raw = workbook.add_worksheet()
-        final = workbook.add_worksheet()
-
-        # Header
-        raw.write(0, 0, 'CircleID')
-        raw.write(0, 1, 'symbol')
-        raw.write(0, 2, 'begin_circle')
-        raw.write(0, 3, 'end_circle')
-        raw.write(0, 4, 'total_time')
-        raw.write(0, 5, 'CircleID')
-        raw.write(0, 6, 'PressureID')
-        raw.write(0, 7, 'Pressure')
-        raw.write(3, 10, 'PatientID:')
-        raw.write(4, 10, testinfo.PatientID)
-
-        # Grab all points from table
-        circles = db.engine.execute("SELECT * FROM test.circles WHERE TestID='{id}';".format(id=test_id))
-        pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
-        for item in circles:  # loop circles 5 columns
-            raw.write(row, col, item.CircleID)
-            raw.write(row, col + 1, item.symbol)
-            raw.write(row, col + 2, item.begin_circle)
-            raw.write(row, col + 3, item.end_circle)
-            raw.write(row, col + 4, item.total_time)
-            row = row + 1
-
-        row = 1
-        col = 5
-        for item in pressure:  # loop pressure 3 columns
-            raw.write(row, col, item.CircleID)
-            raw.write(row, col + 1, item.PressureID)
-            raw.write(row, col + 2, item.Pressure)
-            row = row + 1
-
-        workbook.close()
-        return send_file(dir_path + filename, as_attachment=True)  # send file as attachment
-    elif selection == '2':
-        dir_path = Config.APP_ROOT + '/file-downloads/'
-        filename = "{id}_questionnaire.xlsx".format(id=testinfo.PatientID)
-        if os.path.isfile(dir_path + filename):
-            return send_file(dir_path + filename, as_attachment=True)  # send file as attachment
+        filename = "{id}_questionnaire".format(id=testinfo.PatientID) + str(round(time.time())) + ".xlsx"
 
         excel = xlsxwriter.Workbook(dir_path + filename)
         question = excel.add_worksheet()
+        question.set_column(0, 1, 25)
+        question.set_column(2, 3, 75)
+        question.set_column(4, 4, 50)
         question.write(0, 0, 'QuestionID')
         question.write(0, 1, 'QuestionType')
         question.write(0, 2, 'PossibleAnswers')
@@ -260,21 +243,14 @@ def get_excel():
         questions = Questions.query.order_by(asc(Questions.QuestionID)).all()
         answers = Answers.query.filter_by(TestID=test_id).order_by(asc(Answers.QuestionID)).all()
 
-        for item in questions:  # loop questions 3 columns
-            question.write(row, col + 1, item.QuestionID)
-            question.write(row, col + 2, item.QuestionType)
-            question.write(row, col + 3, item.PossibleAnswers)
-            question.write(row, col + 4, item.Question)
-            row = row + 1
-
-        row = 1
-        col = 5
-        for item in answers:  # loop answers 5 columns
-            question.write(row, col, item.Answer)
-            # questions.write(row, col + 1, item['Answer'])
-            row = row + 1
+        for i in range(0, len(questions)):  # loop questions 3 columns
+            question.write(i+1, 0, questions[i].QuestionID)
+            question.write(i+1, 1, questions[i].QuestionType)
+            question.write(i+1, 2, questions[i].PossibleAnswers)
+            question.write(i+1, 3, questions[i].Question)
+        
+        for answer in answers:
+            question.write(answer.QuestionID, 4, answer.Answer)
 
         excel.close()
         return send_file(dir_path + filename, as_attachment=True)  # send file as attachment
-
-

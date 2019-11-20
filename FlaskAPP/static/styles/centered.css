@@ -4,18 +4,12 @@
     top: 50%;
     transform: translateX(-50%) translateY(-50%);
 }
-
 .error {
     position: absolute;
     left: 50%;
     top: 60%;
     transform: translateX(-50%) translateY(-50%);
 }
-
-body {
-    background-color: #e5e5da;
-}
-
 .footer {
    position: fixed;
    left: 0;

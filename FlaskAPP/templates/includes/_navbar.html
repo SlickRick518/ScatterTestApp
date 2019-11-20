@@ -1,34 +1,18 @@
-<!-- Navbar -->
-
-<!-- Creates the navbar-->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-
         <ul class="navbar-nav mr-auto">
-            <!-- Creates an item on the navbar-->
             <li class="nav-item">
-                <!--Link to go back to the HomePage-->
                 <a class="nav-link" href="/">Home</a>
             </li>
             <li class="nav-item">
-                <!--Link to go back to the About Page-->
-                <a class="nav-link" href="/about">About</a>
-            </li>
-            <li class="nav-item">
-                <!--Link to go back to the Patients Page-->
                 <a class="nav-link" href="/patients">Patients</a>
             </li>
             <li class="nav-item">
-                <!--Link to go back to the Settings Page-->
                 <a class="nav-link" href="/settings">Settings</a>
             </li>
         </ul>
-        <!--Checks if user is logged in-->
-        {% if current_user.is_authenticated %}
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <!--Navbar item to logout a User-->
-                <a class="nav-link" href="/logout">Logout</a>
+                <a class="nav-link" href="/logout">Log out</a>
             </li>
         </ul>
-        {% endif %}
 </nav>

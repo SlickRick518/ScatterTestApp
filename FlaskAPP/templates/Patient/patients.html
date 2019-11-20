@@ -1,40 +1,43 @@
-<!-- Lets render the "layout" template -->
 {% extends 'layout.html' %}
 
+{% block scripts %}
+{{ super() }}
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable();
+    });
+</script>
+{% endblock %}
 {% block content %}
-
-<script type="text/javascript" src="{{ url_for('static', filename='javascript/table.js') }}"></script>
-
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatable.css') }}">
-
-<div class="table">
-    <table class="display" id="example">
-        <thead>
-            <tr>
-                <th>TestID</th>
-                <th>PatientID</th>
-                <th>Date Taken</th>
-                <th>Test Data</th>
-                <th>Questionaire</th>
-            </tr>
-        </thead>
-    
-        <tbody>
-        {% for item in tableData %}
-            <tr>
-                <td>{{ item['TestID'] }}</td>
-                <td>{{ item['PatientID'] }}</td>
-                <td>{{ item['DateTaken'] }}</td>
-                <td>            
-                    <a href="/data/get_excel?id={{ item['TestID'] }}&selection=1">Download</a>
-                </td>
-                <td>            
-                    <a href="/data/get_excel?id={{ item['TestID'] }}&selection=2"> Download </a>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+</br></br>
+<div class="flex-container">
+    <div class="col">
+        <table class="display" id="example">
+            <thead>
+                <tr>
+                    <th>Test ID</th>
+                    <th>Patient ID</th>
+                    <th>Date Taken</th>
+                    <th>Test Data</th>
+                    <th>Questionnaire</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in tableData %}
+                <tr>
+                    <td>{{ item['TestID'] }}</td>
+                    <td>{{ item['PatientID'] }}</td>
+                    <td>{{ item['DateTaken'] }}</td>
+                    <td>
+                        <a href="/data/get_test_data_excel?id={{ item['TestID'] }}">Download</a>
+                    </td>
+                    <td>
+                        <a href="/data/get_questionnaire_excel?id={{ item['TestID'] }}"> Download </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
 {% endblock %}

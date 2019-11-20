@@ -1,14 +1,8 @@
-<!--Page to reset a user's password - *currently does not do anything, not connected to website
-	will be emailed as a temp link - stretch goal* -->
-
-<!-- Lets render the "layout" template -->
-{% extends 'layoutForForgotPW.html' %}
+{% extends 'layout.html' %}
 
 {% block content %}
-
 <link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
-
-<form>
+<form id="form-login">
 	<div class="text-center">
 	  <h2>Password Reset</h2>
 	  <hr>
@@ -23,6 +17,4 @@
 	</div>
 	<button type="submit" class="btn btn-primary">Submit</button>
   </form>
-
-  
 {% endblock %}

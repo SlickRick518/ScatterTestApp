@@ -3,28 +3,30 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/centered.css') }}">
-  <div class="centered">
-    
-    <table class="table table-secondary">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col">Test Name</th>
-          <th scope="col">Download Link</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in file_data %}
-        <tr>
-          <td>{{item.name}}</td>
-          <td><a href="/settings/download/{{item.name}}" download>Download</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
-    <a class="btn btn-dark" href="/settings/upload">Upload</a>
-    
+<div class="flex-container" style="margin-top: 10%">
+  <div class="col-lg-4 mx-auto">
+    <div class="row">
+      <table class="table table-secondary">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Test Name</th>
+            <th scope="col">Download Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in file_data %}
+          <tr>
+            <td>{{item.name}}</td>
+            <td><a href="/settings/download/{{item.name}}" download>Download</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="row">
+      <a class="btn btn-dark" href="/settings/upload">Upload</a>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
