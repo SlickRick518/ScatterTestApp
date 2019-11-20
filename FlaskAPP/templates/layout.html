@@ -19,6 +19,7 @@
 
 </head>
 <body>
+        {% include 'includes/_messages.html' %}
         {% if current_user.is_authenticated %}
         {% include 'includes/_navbar.html' %}
         {% else %}
