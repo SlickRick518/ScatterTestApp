@@ -15,48 +15,61 @@ Tom Lentz: https://github.com/tlentz98/Senior-Project
 
 Hiral Shah: https://github.com/hiralshah5172/senior_project
 
-#### The basic necessities to run it
+## Workspace Installation Guide
 
 ## Install [Python](https://www.python.org/), [pip](https://pip.pypa.io/en/stable/installing/), and [Virtualenv](https://virtualenv.pypa.io/en/latest/)
-###### Once they're downloaded verify installation:
+Once installed, run the following commands to verify that the installations were successful.
 ```
 python --version
-Python 3.7.2
+> Python 3.7.2
 
 pip --version
-pip 19.3.1
+> pip 19.3.1
 
 virtualenv --version
-16.7.5
+> 16.7.5
 ```
-## Get Environment Started
-Create virtual environment
+## Set up the virtual environment 
+First, run the following command to create a new virtual environment.
 ```
 virtualenv venv
 ```
-
-Wait for it to complete then start the environment. Afterwards, install required packages
+Wait for it to complete, then start the environment by running 
 ```
 .\venv\Scripts\activate
+```
+Afterwards, install the required packages by running
+```
 pip install -e .
 ```
 
-Set the environment variables so flask knows what to run
+Next, set the environment variables by running
 ```
-# For Powershell users
+# Powershell
 $env:FLASK_APP="FlaskAPP"
 $env:FLASK_ENV="development"
 
-# For cmd shell users
+# Windows command-line
 set FLASK_APP=FlaskAPP
 set FLASK_ENV=development
-```
 
-Create a config file using the config_example.py file located in FlaskAPP and set the values.
-Then run the flask app!
+# GNU/LINUX
+export FLASK_APP=FlaskAPP
+export FLASK_ENV=development
+```
+Create a config file using the config_example.py file located in the FlaskAPP directory 
+and modify the following values accordingly.
+```
+DB_USER = "[YOUR DATABASE'S USER NAME]"
+DB_PASS = "[YOUR DATABASE'S PASSWORD]"
+
+SQLALCHEMY_DATABASE_URI = 'mysql://' + DB_USER + ':' + DB_PASS + '[YOUR DATABASE'S URL]'
+```
+Finally, run the Flask server with
 ```
 flask run
 ```
+## License Information
 
 Copyright 2019 
 
