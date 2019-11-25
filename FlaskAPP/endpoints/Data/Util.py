@@ -1,13 +1,16 @@
 import xlsxwriter
 def circle_fill(page, testinfo, circles, workbook):
 
+
+    dateFormat = workbook.add_format({'num_format': 'yyyy-mm-dd'})
+    timeFormat = workbook.add_format({'num_format': 'hh:mm:ss'})
     #set up circle info
     page.write(0, 0, 'Circle #')
     page.write(0, 1, 'Symbol')
     page.write(0, 2, 'Start Time')
     page.write(0, 3, 'End Time')
     page.write(0, 4, 'Total Time')
-    page.set_column(4, 4, 20)
+    page.set_column(2, 5, 16)
     page.write(0, 5, 'Latency')
 
     #set up general test info - why isn't this on another sheet?
@@ -17,12 +20,16 @@ def circle_fill(page, testinfo, circles, workbook):
     page.write(1, 8, testinfo.PatientID)
     #date is bad
     page.write(0, 9, 'Date')
-    page.write(1, 9, testinfo.DateTaken)
+    page.write(1, 9, testinfo.DateTaken, dateFormat)
     page.write(0, 10, 'DoctorID')
     page.write(1, 10, testinfo.DoctorID)
     page.write(0, 11, 'Test')
     page.write(1, 11, testinfo.TestName)
-    page.set_column(7, 12, 20)
+    page.write(0, 12, 'Test Length')
+    page.write(1, 12, testinfo.TestLength, timeFormat)
+    page.set_column(7, 10, 15)
+    page.set_column(11, 11, 18)
+    page.set_column(12, 12, 15)
 
     #grab all the circle objects and throw them in an array for ez access
     circleAsArray = []
