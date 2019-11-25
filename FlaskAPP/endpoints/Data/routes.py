@@ -17,7 +17,7 @@ from random import randint
 import flask_marshmallow
 import xlsxwriter
 import datetime, time
-from .Util import circle_fill, pressure_fill
+from .Util import circle_fill, col_pressure_fill
 
 app = Flask(__name__)
 
@@ -198,9 +198,6 @@ def get_test_data_excel():
     selection = request.args.get('selection', None)
     testinfo = TestFrame.query.filter_by(TestID=test_id).first()  # get test info
 
-    row = 1
-    col = 0
-
     dir_path = Config.APP_ROOT + '/file-downloads/'
     filename = "{id}_testdata".format(id=testinfo.PatientID) + str(round(time.time())) + ".xlsx"
 
@@ -215,7 +212,7 @@ def get_test_data_excel():
     pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
 
     circle_fill(raw_circle, testinfo, circles, workbook)  # generate circle file
-    pressure_fill(raw_pressure, pressure, workbook)  # generate pressure file
+    col_pressure_fill(raw_pressure, pressure, workbook)  # generate pressure file
 
     workbook.close()
     return send_file(dir_path + filename, as_attachment=True)  # send file as attachment

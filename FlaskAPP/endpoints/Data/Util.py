@@ -40,7 +40,39 @@ def circle_fill(page, testinfo, circles, workbook):
         else:
             page.write(i+1, 5, "N/A")
 
-def pressure_fill(page, pressure, workbook):
+def col_pressure_fill(page, pressure, workbook):
+    #Circle ID: number of attributes
+    col = 0
+    row = 1
+    pressureList = []
+    pressure_format = workbook.add_format({'bg_color' : '#993333'})
+    azimuth_format  = workbook.add_format({'bg_color' : '#0099ff'})
+    altitude_format = workbook.add_format({'bg_color' : '#00ffcc'})
+
+    for i in range(pressure[-1].CircleID):
+        #fun python filtering - i+1 because the circle values start at 1
+        filtered = list(x for x in pressure if x.CircleID == i+1)
+        pressureList.append(filtered)
+
+    for i in range(len(pressureList)):
+        page.write(0, col, 'Circle ID: ' + str(i+1))
+        page.write(0, col+1, 'Pressure (' + str(len(pressureList[i])) + ' values)')
+        page.set_column(0, col+1, 20)
+        page.write(0, col+2, 'Azimuth Angle')
+        page.set_column(0, col+2, 20)
+        page.write(0, col+3, 'Altitude Angle')
+        page.set_column(0, col+3, 20)
+        for j in range(0, len(pressureList[i])):
+            page.write(row, col+1, pressureList[i][j].Pressure, pressure_format)
+            page.write(row, col+2, pressureList[i][j].Azimuth, azimuth_format)
+            page.write(row, col+3, pressureList[i][j].PenAltitude, altitude_format)
+            row = row + 1
+        col = col + 4
+        row = 1
+
+
+# use this if you want to have the info displayed in rows
+def row_pressure_fill(page, pressure, workbook):
     page.write(0, 0, 'Circle #')
     page.write(0, 1, 'Pressure')
     page.write(1 + pressure[-1].CircleID, 1, "Azimuth Angle")
