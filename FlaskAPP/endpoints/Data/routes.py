@@ -17,7 +17,7 @@ from random import randint
 import flask_marshmallow
 import xlsxwriter
 import datetime, time
-from .Util import circle_fill, col_pressure_fill
+from .Util import circle_fill, col_pressure_fill, formula_fill
 
 app = Flask(__name__)
 
@@ -211,8 +211,20 @@ def get_test_data_excel():
     circles = db.engine.execute("SELECT * FROM test.circles WHERE TestID='{id}';".format(id=test_id))
     pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
 
-    circle_fill(raw_circle, testinfo, circles, workbook)  # generate circle file
-    col_pressure_fill(raw_pressure, pressure, workbook)  # generate pressure file
+    #grab all the circle objects and throw them in an array for ez access
+    circleAsArray = []
+    for row in circles:
+        circleAsArray.append(row)
+
+    pressureList = []
+    for i in range(pressure[-1].CircleID):
+        #fun python filtering - i+1 because the circle values start at 1
+        filtered = list(x for x in pressure if x.CircleID == i+1)
+        pressureList.append(filtered)
+
+    circle_fill(raw_circle, testinfo, circleAsArray, workbook)  # generate circle file
+    col_pressure_fill(raw_pressure, pressureList, workbook)  # generate pressure file
+    formula_fill(final, circleAsArray, pressureList, workbook) # generate formula file
 
     workbook.close()
     return send_file(dir_path + filename, as_attachment=True)  # send file as attachment

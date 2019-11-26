@@ -1,9 +1,74 @@
 import xlsxwriter
-def circle_fill(page, testinfo, circles, workbook):
+from statistics import mean
 
+def formula_fill(page, circleAsArray, pressureList, workbook):
+    row = 2
+    col = 1
+    for i in range(len(circleAsArray)):
+        page.write(row-2, 0, 'Circle #')
+        page.write(row-2, 1, 'Symbol')
+        page.write(row-2, 2, 'Start Time')
+        page.write(row-2, 3, 'End Time')
+        page.write(row-2, 4, 'Total Time')
+        page.set_column(2, 8, 20)
+        page.write(row-2, 5, 'Latency')
+        page.write(row-2, 6, 'Average Pressure')
+        page.write(row-2, 7, 'Avg Azimuth Angle')
+        page.write(row-2, 8, 'Average Altitute')
+
+        page.write(row-1, 0, circleAsArray[i].CircleID)
+        page.write(row-1, 1, circleAsArray[i].symbol)
+        page.write(row-1, 2, circleAsArray[i].begin_circle)
+        page.write(row-1, 3, circleAsArray[i].end_circle)
+        page.write(row-1, 4, circleAsArray[i].total_time)
+        if(i != 0):
+            page.write(row-1, 5, circleAsArray[i].begin_circle - circleAsArray[i-1].end_circle)
+        else:
+            page.write(row-1, 5, "N/A")
+
+        pressureSum = 0.0
+        azimuthSum = 0.0
+        altitudeSum = 0.0
+        
+        for j in range(0, len(pressureList[i])):
+            pressureSum += pressureList[i][j].Pressure
+            azimuthSum += pressureList[i][j].Azimuth
+            altitudeSum += pressureList[i][j].PenAltitude
+        
+        page.write(row-1, 6, (pressureSum / len(pressureList[i])))
+        page.write(row-1, 7, (azimuthSum / len(pressureList[i])))
+        page.write(row-1, 8, (altitudeSum / len(pressureList[i])))
+
+        pressureChart = workbook.add_chart({'type': 'line'})
+        pressureChart.add_series({
+            'name':     'Pressure',
+            'values':   ['pressure', 1, col, len(pressureList[i])+1, col],
+            'line':     {'color': 'red'},
+        })
+
+        azimuthChart = workbook.add_chart({'type': 'line'})
+        azimuthChart.add_series({
+            'name':     'Azimuth Angle',
+            'values':   ['pressure', 1, col+1, len(pressureList[i])+1, col+1],
+            'line':     {'color': 'red'},
+        })
+
+        altitudeChart = workbook.add_chart({'type': 'line'})
+        altitudeChart.add_series({
+            'name':     'Altitude',
+            'values':   ['pressure', 1, col+2, len(pressureList[i])+1, col+2],
+            'line':     {'color': 'red'},
+        })
+        page.insert_chart(row, 1, pressureChart)
+        page.insert_chart(row, 6, azimuthChart)
+        page.insert_chart(row, 11, altitudeChart)
+        row += 18
+        col += 4
+
+def circle_fill(page, testinfo, circleAsArray, workbook):
 
     dateFormat = workbook.add_format({'num_format': 'yyyy-mm-dd'})
-    timeFormat = workbook.add_format({'num_format': 'hh:mm:ss'})
+    timeFormat = workbook.add_format({'num_format': 'mm:ss'})
     #set up circle info
     page.write(0, 0, 'Circle #')
     page.write(0, 1, 'Symbol')
@@ -31,11 +96,6 @@ def circle_fill(page, testinfo, circles, workbook):
     page.set_column(11, 11, 18)
     page.set_column(12, 12, 15)
 
-    #grab all the circle objects and throw them in an array for ez access
-    circleAsArray = []
-    for row in circles:
-        circleAsArray.append(row)
-
     for i in range(len(circleAsArray)):
         page.write(i+1, 0, circleAsArray[i].CircleID)
         page.write(i+1, 1, circleAsArray[i].symbol)
@@ -47,19 +107,13 @@ def circle_fill(page, testinfo, circles, workbook):
         else:
             page.write(i+1, 5, "N/A")
 
-def col_pressure_fill(page, pressure, workbook):
+def col_pressure_fill(page, pressureList, workbook):
     #Circle ID: number of attributes
     col = 0
     row = 1
-    pressureList = []
     pressure_format = workbook.add_format({'bg_color' : '#993333'})
     azimuth_format  = workbook.add_format({'bg_color' : '#0099ff'})
     altitude_format = workbook.add_format({'bg_color' : '#00ffcc'})
-
-    for i in range(pressure[-1].CircleID):
-        #fun python filtering - i+1 because the circle values start at 1
-        filtered = list(x for x in pressure if x.CircleID == i+1)
-        pressureList.append(filtered)
 
     for i in range(len(pressureList)):
         page.write(0, col, 'Circle ID: ' + str(i+1))
