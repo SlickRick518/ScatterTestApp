@@ -4,7 +4,11 @@ from statistics import mean
 def formula_fill(page, circleAsArray, pressureList, workbook):
     row = 0
     col = 1
+    # The data for each circle's data is generated per iteration of this loop
+    # row starts at 0, increased by 18 each time to format properly in excel
+    # col keeps track of the columns in the pressure table
     for i in range(len(circleAsArray)):
+        # Write labels and values
         page.write(row, 0, 'Circle #')
         page.write(row, 1, 'Symbol')
         page.write(row, 2, 'Start Time')
@@ -26,6 +30,7 @@ def formula_fill(page, circleAsArray, pressureList, workbook):
         else:
             page.write(row+1, 5, "N/A")
 
+        # Calculate Averages
         pressureSum = 0.0
         azimuthSum = 0.0
         altitudeSum = 0.0
@@ -35,10 +40,12 @@ def formula_fill(page, circleAsArray, pressureList, workbook):
             azimuthSum += pressureList[i][j].Azimuth
             altitudeSum += pressureList[i][j].PenAltitude
         
+        # Write averages in
         page.write(row+1, 6, (pressureSum / len(pressureList[i])))
         page.write(row+1, 7, (azimuthSum / len(pressureList[i])))
         page.write(row+1, 8, (altitudeSum / len(pressureList[i])))
 
+        # Creates charts, pulls from the pressure sheet
         pressureChart = workbook.add_chart({'type': 'line'})
         pressureChart.add_series({
             'name':     'Pressure',
@@ -62,7 +69,9 @@ def formula_fill(page, circleAsArray, pressureList, workbook):
         page.insert_chart(row+2, 1, pressureChart)
         page.insert_chart(row+2, 6, azimuthChart)
         page.insert_chart(row+2, 11, altitudeChart)
+        # For excel formatting
         row += 18
+        # col increments by 4 to move onto the next entry of circle data in the pressure sheet
         col += 4
 
 def circle_fill(page, testinfo, circleAsArray, workbook):

@@ -211,7 +211,7 @@ def get_test_data_excel():
     circles = db.engine.execute("SELECT * FROM test.circles WHERE TestID='{id}';".format(id=test_id))
     pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
 
-    #grab all the circle objects and throw them in an array for ez access
+    # Creates lists for circle and pressure data, for easy use.
     circleAsArray = []
     for row in circles:
         circleAsArray.append(row)
