@@ -2,29 +2,29 @@ import xlsxwriter
 from statistics import mean
 
 def formula_fill(page, circleAsArray, pressureList, workbook):
-    row = 2
+    row = 0
     col = 1
     for i in range(len(circleAsArray)):
-        page.write(row-2, 0, 'Circle #')
-        page.write(row-2, 1, 'Symbol')
-        page.write(row-2, 2, 'Start Time')
-        page.write(row-2, 3, 'End Time')
-        page.write(row-2, 4, 'Total Time')
+        page.write(row, 0, 'Circle #')
+        page.write(row, 1, 'Symbol')
+        page.write(row, 2, 'Start Time')
+        page.write(row, 3, 'End Time')
+        page.write(row, 4, 'Total Time')
         page.set_column(2, 8, 20)
-        page.write(row-2, 5, 'Latency')
-        page.write(row-2, 6, 'Average Pressure')
-        page.write(row-2, 7, 'Avg Azimuth Angle')
-        page.write(row-2, 8, 'Average Altitute')
+        page.write(row, 5, 'Latency')
+        page.write(row, 6, 'Average Pressure')
+        page.write(row, 7, 'Avg Azimuth Angle')
+        page.write(row, 8, 'Average Altitute')
 
-        page.write(row-1, 0, circleAsArray[i].CircleID)
-        page.write(row-1, 1, circleAsArray[i].symbol)
-        page.write(row-1, 2, circleAsArray[i].begin_circle)
-        page.write(row-1, 3, circleAsArray[i].end_circle)
-        page.write(row-1, 4, circleAsArray[i].total_time)
+        page.write(row+1, 0, circleAsArray[i].CircleID)
+        page.write(row+1, 1, circleAsArray[i].symbol)
+        page.write(row+1, 2, circleAsArray[i].begin_circle)
+        page.write(row+1, 3, circleAsArray[i].end_circle)
+        page.write(row+1, 4, circleAsArray[i].total_time)
         if(i != 0):
-            page.write(row-1, 5, circleAsArray[i].begin_circle - circleAsArray[i-1].end_circle)
+            page.write(row+1, 5, circleAsArray[i].begin_circle - circleAsArray[i-1].end_circle)
         else:
-            page.write(row-1, 5, "N/A")
+            page.write(row+1, 5, "N/A")
 
         pressureSum = 0.0
         azimuthSum = 0.0
@@ -35,9 +35,9 @@ def formula_fill(page, circleAsArray, pressureList, workbook):
             azimuthSum += pressureList[i][j].Azimuth
             altitudeSum += pressureList[i][j].PenAltitude
         
-        page.write(row-1, 6, (pressureSum / len(pressureList[i])))
-        page.write(row-1, 7, (azimuthSum / len(pressureList[i])))
-        page.write(row-1, 8, (altitudeSum / len(pressureList[i])))
+        page.write(row+1, 6, (pressureSum / len(pressureList[i])))
+        page.write(row+1, 7, (azimuthSum / len(pressureList[i])))
+        page.write(row+1, 8, (altitudeSum / len(pressureList[i])))
 
         pressureChart = workbook.add_chart({'type': 'line'})
         pressureChart.add_series({
@@ -59,9 +59,9 @@ def formula_fill(page, circleAsArray, pressureList, workbook):
             'values':   ['pressure', 1, col+2, len(pressureList[i])+1, col+2],
             'line':     {'color': 'red'},
         })
-        page.insert_chart(row, 1, pressureChart)
-        page.insert_chart(row, 6, azimuthChart)
-        page.insert_chart(row, 11, altitudeChart)
+        page.insert_chart(row+2, 1, pressureChart)
+        page.insert_chart(row+2, 6, azimuthChart)
+        page.insert_chart(row+2, 11, altitudeChart)
         row += 18
         col += 4
 
