@@ -157,10 +157,14 @@ def upload_patient_questionnaire_answers():
 def download(filename):
     file_data = JSONFiles.query.filter_by(name=filename).first()
     jsonfile = file_data.data
-
     file = jsonfile.decode("utf8")
-
     return file
+
+@data.route('/data/download_as_json/<filename>')
+def download_as_json(filename):
+    file_data = JSONFiles.query.filter_by(name=filename).first()
+    jsonfile = file_data.data
+    return jsonfile
 
 @data.route('/data/download/getTestList')
 def getList():
@@ -191,6 +195,12 @@ def download_questions():
 #  <selection> := Either Data or Questionnaire
 #  ***Will need to implement a garbage collector for /file-downloads folder after X (hours/day)***
 
+@data.route('/data/get_test_data_json', methods=['GET'])
+def get_test_data_json():
+    test_id = request.args.get('id', None)
+    testinfo = TestFrame.query.filter_by(TestID=test_id).first()
+    json = jsonify(testinfo)
+    return json
 
 @data.route('/data/get_test_data_excel', methods=['GET'])
 def get_test_data_excel():

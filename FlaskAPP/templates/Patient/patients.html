@@ -18,6 +18,7 @@
                     <th>Test ID</th>
                     <th>Patient ID</th>
                     <th>Date Taken</th>
+                    <th>Replay</th>
                     <th>Test Data</th>
                     <th>Questionnaire</th>
                 </tr>
@@ -28,6 +29,7 @@
                     <td>{{ item['TestID'] }}</td>
                     <td>{{ item['PatientID'] }}</td>
                     <td>{{ item['DateTaken'] }}</td>
+                    <td><a href="{{ url_for('patients.replay' ,id=item ['TestID']) }}">Watch</a></td>
                     <td>
                         <a href="/data/get_test_data_excel?id={{ item['TestID'] }}">Download</a>
                     </td>

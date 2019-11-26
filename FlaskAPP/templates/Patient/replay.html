@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/d3.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/replay.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+<br />
+<div class="flex-container">
+
+        <div class="row-lg-auto" id="image-container">
+            <svg id="svg"></svg>
+        </div>
+        <div class="row-lg-auto">
+            <div class="col-sm-auto">
+                <button>Start</button>
+            </div>
+            <div class="col-sm-auto">
+                <button>◄</button>
+            </div>
+            <div class="col-sm-auto">
+                <button>Pause</button>
+            </div>
+            <div class="col-sm-auto">
+                <button>►</button>
+            </div>
+            <div class="col-sm-auto">
+                <button>Stop</button>
+            </div>
+        </div>
+
+</div>
+{% endblock %}
