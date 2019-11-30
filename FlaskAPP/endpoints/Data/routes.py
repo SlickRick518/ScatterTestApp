@@ -14,17 +14,41 @@ from FlaskAPP.models.pressure import Pressure
 from FlaskAPP.models.testframe import TestFrame
 from FlaskAPP.models.doctor import Doctor
 from random import randint
-import flask_marshmallow
+import marshmallow
+from marshmallow import fields
 import xlsxwriter
 import datetime, time
 from .Util import circle_fill, col_pressure_fill, formula_fill
 
 app = Flask(__name__)
 
+class TestData:
+    def __init__(self, TestID, PatientID, DateTaken, DoctorID, 
+        TestName, TestLength, CircleData, PressureData):
+        self.TestID = TestID
+        self.PatientID = PatientID
+        self.DateTaken = DateTaken
+        self.DoctorID = DoctorID
+        self.TestName = TestName
+        self.TestLength = TestLength
+        self.CircleData = CircleData
+        self.PressureData = PressureData
+
+class PressureData:
+    def __init__(self, TestID, CircleID, PressureID, Xcoord, Ycoord, Pressure, 
+        PenAltitude, Azimuth):
+        self.TestID = TestID
+        self.CircleID = CircleID
+        self.PressureID = PressureID
+        self.Xcoord = Xcoord
+        self.Ycoord = Ycoord
+        self.Pressure = Pressure
+        self.PenAltitude = PenAltitude
+        self.Azimuth = Azimuth
+
 class QuestionSchema(ma.ModelSchema):
     class Meta:
         model = Questions
-
 
 class JSONFileSchema(ma.ModelSchema):
     class Meta:
@@ -34,6 +58,33 @@ class DoctorFileSchema(ma.ModelSchema):
     class Meta:
         model = Doctor
 
+class PressureSchema(ma.Schema):
+    TestID = fields.Number()
+    CircleID = fields.Number()
+    Xcoord = fields.Number()
+    Ycoord = fields.Number()
+    Pressure = fields.Number()
+    PenAltitude = fields.Number()
+    Azimuth = fields.Number()
+
+class CircleSchema(ma.Schema):
+    CircleID = fields.Number()
+    begin_circle = fields.Number()
+    end_circle = fields.Number()
+    symbol = fields.String()
+    total_time = fields.Number()
+    PressureData = fields.Nested(PressureSchema(), many=True)
+
+class TestDataSchema(ma.Schema):
+    TestID = fields.Number()
+    PatientID = fields.String()
+    DateTaken = fields.String()
+    DoctorID = fields.Number()
+    TestName = fields.String()
+    TestLength = fields.String()
+    CircleData = fields.Nested(CircleSchema(), many=True)
+    # Only way I can sort the values
+    PressureData = fields.List(fields.List(fields.String()))
 
 data = Blueprint('data', __name__)
 
@@ -199,7 +250,22 @@ def download_questions():
 def get_test_data_json():
     test_id = request.args.get('id', None)
     testinfo = TestFrame.query.filter_by(TestID=test_id).first()
-    json = jsonify(testinfo)
+    circles = Circles.query.filter_by(TestID=test_id).all()
+    PressureList = []
+
+    # Build list of pressure data
+    for i in range(0, len(circles)):
+        dataForCircle = Pressure.query.filter_by(TestID=test_id, CircleID=i+1).all()
+        PressureList.append(dataForCircle)
+
+    testframe = TestData(TestID=testinfo.TestID, PatientID=testinfo.PatientID,
+        DateTaken=testinfo.DateTaken, DoctorID=testinfo.DoctorID, 
+        TestName=testinfo.TestName, TestLength=testinfo.TestLength,
+        CircleData=circles, PressureData=PressureList)
+
+    result = TestDataSchema().dump(testframe)
+    json = jsonify(result)
+
     return json
 
 @data.route('/data/get_test_data_excel', methods=['GET'])
