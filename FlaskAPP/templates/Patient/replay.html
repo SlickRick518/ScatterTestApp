@@ -6,30 +6,28 @@
 {% endblock %}
 
 {% block content %}
-
 <br />
 <div class="flex-container">
-
-        <div class="row-lg-auto" id="image-container">
+        <div class="row" id="image-container">
             <svg id="svg"></svg>
         </div>
-        <div class="row-lg-auto">
+        <br/>
+        <div class="row" id="div-controls">
             <div class="col-sm-auto">
-                <button>Start</button>
+                <button class="btn btn-info" id="btn-start">Start</button>
             </div>
             <div class="col-sm-auto">
-                <button>◄</button>
+                <button class="btn btn-info" id="btn-rewind">◄</button>
             </div>
             <div class="col-sm-auto">
-                <button>Pause</button>
+                <button class="btn btn-info" id="btn-pause">Pause</button>
             </div>
             <div class="col-sm-auto">
-                <button>►</button>
+                <button class="btn btn-info" id="btn-fastforward">►</button>
             </div>
             <div class="col-sm-auto">
-                <button>Stop</button>
+                <button class="btn btn-info" id="btn-stop">Stop</button>
             </div>
         </div>
-
 </div>
 {% endblock %}

@@ -255,8 +255,14 @@ def get_test_data_json():
 
     # Build list of pressure data
     for i in range(0, len(circles)):
-        dataForCircle = Pressure.query.filter_by(TestID=test_id, CircleID=i+1).all()
-        PressureList.append(dataForCircle)
+        pressuresForCircle = Pressure.query.filter_by(TestID=test_id, CircleID=i+1).all()
+        currentPressures = []
+        for pressure in pressuresForCircle:
+            currentPressures.append(dict(
+             x=pressure.Xcoord,y=pressure.Ycoord, 
+             pressure=pressure.Pressure,azimuth=pressure.Azimuth,
+             altitude=pressure.PenAltitude))
+        PressureList.append(currentPressures)
 
     testframe = TestData(TestID=testinfo.TestID, PatientID=testinfo.PatientID,
         DateTaken=testinfo.DateTaken, DoctorID=testinfo.DoctorID, 
