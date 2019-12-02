@@ -2,32 +2,51 @@
 {% block scripts %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/d3.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/d3-delaunay.min.js') }}""></script>
 <script src="{{ url_for('static', filename='js/replay.js') }}"></script>
 {% endblock %}
 
 {% block content %}
-<br />
+<style>
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    font: 16px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+</style>
 <div class="flex-container">
         <div class="row" id="image-container">
             <svg id="svg"></svg>
         </div>
         <br/>
-        <div class="row" id="div-controls">
+    </div>
+    <div class="container">
+        <div class="row justify-content-center" id="div-controls">
             <div class="col-sm-auto">
-                <button class="btn btn-info" id="btn-start">Start</button>
+                <button class="btn btn-info" id="btn-start" title="Start the simulation.">Start</button>
             </div>
             <div class="col-sm-auto">
-                <button class="btn btn-info" id="btn-rewind">◄</button>
+                <button class="btn btn-info" id="btn-rewind" title="Go back a circle; you may have to click twice.">◄</button>
             </div>
             <div class="col-sm-auto">
-                <button class="btn btn-info" id="btn-pause">Pause</button>
+                <button class="btn btn-info" id="btn-pause" title="Pause the simulation; you may have to click twice to continue.">Pause</button>
             </div>
             <div class="col-sm-auto">
-                <button class="btn btn-info" id="btn-fastforward">►</button>
+                <button class="btn btn-info" id="btn-fastforward" title="Go forward a circle; you may have to click twice.">►</button>
             </div>
             <div class="col-sm-auto">
-                <button class="btn btn-info" id="btn-stop">Stop</button>
+                <button class="btn btn-info" id="btn-stop" title="Reset the simulation.">Stop</button>
             </div>
-        </div>
-</div>
+            <div class="col-sm-auto">
+                <button class="btn btn-info" id="btn-showAll" title="Show all the circles drawn during the test.">Show all</button>
+            </div>
+    </div>
+    <div class="tooltip" id="moving_tooltip"></div>
+    <div class="tooltip" id="held_tooltip" style="background: coral;"></div>
+
 {% endblock %}
