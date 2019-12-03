@@ -208,7 +208,7 @@ def get_test_data_excel():
     final = workbook.add_worksheet('formula')
 
     # Grab all points from table
-    circles = db.engine.execute("SELECT * FROM test.circles WHERE TestID='{id}';".format(id=test_id))
+    circles = db.engine.execute("SELECT * FROM datadump.circles WHERE TestID='{id}';".format(id=test_id))
     pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
 
     # Creates lists for circle and pressure data, for easy use.
