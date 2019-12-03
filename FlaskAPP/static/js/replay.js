@@ -11,8 +11,10 @@ $().ready(function (){
     var yScale = 0;
     var counter = 0; //will help us figure out where we are
     let speedFactor = 1000; //regular speed
-    let width = window.innerWidth;
-    let height = window.innerHeight * 0.8;
+    let tooltipRadius = 2;
+    //width and height are flipped because the iPad's in landscape mode
+    let width = 1112;
+    let height = 834;
     var isPaused = false;
     
     //grab test id from the query string
@@ -42,7 +44,9 @@ $().ready(function (){
             testFrame = response;
             circleData = response.CircleData;
             rawPressures = response.PressureData;
+            /*console.log(testFrame);
             console.log(circleData);
+            */
             for(i = 0; i < rawPressures.length; i++)
             {
                 var currentGroup = [];
@@ -52,15 +56,26 @@ $().ready(function (){
                     var currentPressure = $.parseJSON(currentPressures[j].replace(/'/g, '"'));
                     //need to do this because python dicts save strangely inside json files
                     currentGroup.push(currentPressure);
-                    compressedPressureData.push(currentPressure); 
+                    compressedPressureData.push(currentPressure);
+                    
+                }
+                let mean = d3.mean(currentGroup, function(d) { return d.x;});
+                let deviation = d3.deviation(currentGroup, function(d) { return d.x;});
+                //filter out outliers - inefficient but WHATEVER
+                for(var k = 0; k < currentGroup.length; k++)
+                {
+                    if(currentGroup[k].x > mean + 2 * deviation)
+                    {
+                        currentGroup.splice(k,1);
+                    }
                 }
                 pressureData.push(currentGroup);
             }
-            
+            var url = "/data/download_as_json/" + testFrame.TestName;
             //load in the test taken
             $.ajax({
                 //eventually make this url dynamic
-                url: "/data/download_as_json/AlphabetTest_fixed.json",
+                url: url,
                 type: 'GET',
                 success: function(response) {
                     var testData = $.parseJSON($.trim(response));
@@ -69,9 +84,9 @@ $().ready(function (){
                     
                     //scale everything properly - 
                     //based upon the last value in the json
-                    xScale = d3.scaleLinear().domain([0, d3.max(symbols, function(d) {return d.x})]).range([0,width]).nice();
-                    yScale = d3.scaleLinear().domain([0, d3.max(symbols, function(d) {return d.y})]).range([0,height]).nice();
-
+                    // x also stretches
+                    xScale = d3.scaleIdentity().domain([0, d3.max(symbols, function(d) {return d.x})]).range([0,width]);
+                    yScale = d3.scaleIdentity().domain([0, d3.max(symbols, function(d) {return d.y})]).range([0,height]);
                     var text = svg.selectAll("text")
                     .data(symbols)
                     .enter()
@@ -80,7 +95,7 @@ $().ready(function (){
                          .attr("x", function(d) { return xScale(d.x); })
                          .attr("y", function(d) { return yScale(d.y); })
                          .text( function (d) { return d.name; })
-                         .attr("font-family", "sans-serif")
+                         .attr("font-family", "Arial")
                          .attr("font-size", "16px")
                          .attr("fill", "black");
                     //and now make all the controls visible
@@ -129,8 +144,11 @@ $().ready(function (){
         }
     })
 
-    $('#btn-stop').on('click', function() {
+    $('#btn-reset').on('click', function() {
         counter = 0;
+        delaunay = 0;
+        d3.select('#moving_tooltip').style('opacity', 0);
+        d3.select('#held_tooltip').style('opacity', 0);
         svg.selectAll("*").interrupt();
         svg.selectAll('path').remove();
     });
@@ -146,13 +164,12 @@ $().ready(function (){
     svg.on('mousemove', function() {
         if(delaunay != 0)
         {
-            var mouseX = d3.event.layerX || d3.event.offsetX;
-            var mouseY = d3.event.layerY || d3.event.offsetY;
+            var mouseX = d3.mouse(this)[0];//d3.event.layerX || d3.event.offsetX;
+            var mouseY = d3.mouse(this)[1];//d3.event.layerY || d3.event.offsetY;
 
-            let pointIndex = delaunay.find(mouseX,mouseY);
+            let pointIndex = delaunay.find(mouseX,mouseY, tooltipRadius);
             if(pointIndex)
             {
-                
                 d3.select('#moving_tooltip')
                 .style('opacity', 1)
                 .style('color', 'black')
@@ -165,10 +182,11 @@ $().ready(function (){
                       'Azimuth: ' + compressedPressureData[pointIndex].azimuth + '<br>');
 
                 focus.style('opacity', 1);
+                //12.5 is the magic offset number
                 focus.attr("transform", "translate(" + xScale(compressedPressureData[pointIndex].x - 12.5) + "," + 
                 yScale(compressedPressureData[pointIndex].y - 12.5) + ")");
             }else {
-		    	d3.select('#tooltip')
+		    	d3.select('#moving_tooltip')
 				.style('opacity', 0);
             }
         }
@@ -210,6 +228,7 @@ $().ready(function (){
         }
         else if(counter === circleData.length)
         {
+            counter = 0;
             alert("Patient completed the test in " + testFrame.TestLength);
         }
     }
@@ -246,30 +265,31 @@ $().ready(function (){
     {
         var line = d3.line()
         //figure out offset - guessing here
-        .x(function(d) { return xScale(d.x) - 12.5; })
-        .y(function(d) { return yScale(d.y) - 12.5; })
-        .curve(d3.curveMonotoneX);
+        .x(function(d) { return xScale(d.x - 12.5) ; })
+        .y(function(d) { return yScale(d.y - 12.5) ; });
 
+        //this is broken 
+        //lines are caused by the patient putting their palm on the device - here, I filter any points 
+        //that are clearly outliers
         var currentCircle = svg.append('path').datum(pressureData[counter])
                             .attr('d', line).attr("stroke", "red").attr("fill","none")
                             .attr("id", "circle-" + circleData[counter].CircleID)
                             .attr("stroke-dasharray", "385 385").attr("stroke-dashoffset", 385).on("click", function() {
                                 // -1 cause however the circle id's are in the database
                                 var id = parseInt(this.id.replace( /^\D+/g, '')) - 1;
-                                console.log(id);
                                 d3.selectAll('*').attr("stroke-width", 1);
                                 d3.select(this).attr("stroke-width", 2);
 
                                 d3.select('#held_tooltip')
                                 .style('opacity', 1)
                                 .style('color', 'black')
-                                .html('Circle ID: ' + circleData[id].CircleID + '<br>' +
-                                      'Symbol Circled: ' + circleData[id].symbol + '<br>' +
-                                      'Circle Began at: ' + circleData[id].begin_circle + '<br>' +
-                                      'Circle Ended at: ' + circleData[id].end_circle + '<br>' +
-                                      'Average Pressure: ' + calcAvg(pressureData[id], 'PRESSURE') + '<br>' +
-                                      'Average Altitude: ' + calcAvg(pressureData[id], 'ALTITUDE') + '<br>' +
-                                      'Average Azimuth: ' + calcAvg(pressureData[id], 'AZIMUTH') + '<br>')
+                                .html('<b>Circle ID:</b> ' + circleData[id].CircleID + '<br>' +
+                                      '<b>Symbol Circled:</b> ' + circleData[id].symbol + '<br>' +
+                                      '<b>Circle Began at:</b> ' + circleData[id].begin_circle + '<br>' +
+                                      '<b>Circle Ended at:</b> ' + circleData[id].end_circle + '<br>' +
+                                      '<b>Average Pressure:</b> ' + calcAvg(pressureData[id], 'PRESSURE') + '<br>' +
+                                      '<b>Average Altitude:</b> ' + calcAvg(pressureData[id], 'ALTITUDE') + '<br>' +
+                                      '<b>Average Azimuth:</b> ' + calcAvg(pressureData[id], 'AZIMUTH') + '<br>')
                             })
                             .transition().duration(circleData[counter].total_time * speedFactor)
                             .attr('stroke-dashoffset', 0)
