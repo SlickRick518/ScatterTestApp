@@ -208,7 +208,8 @@ def get_test_data_excel():
     final = workbook.add_worksheet('formula')
 
     # Grab all points from table
-    circles = db.engine.execute("SELECT * FROM datadump.circles WHERE TestID='{id}';".format(id=test_id))
+    # circles = db.engine.execute("SELECT * FROM datadump.circles WHERE TestID='{id}';".format(id=test_id))
+    circles = Circles.query.filter_by(TestID=test_id).all()
     pressure = Pressure.query.filter_by(TestID=test_id).all()  # get pressure from test
 
     # Creates lists for circle and pressure data, for easy use.
@@ -222,7 +223,7 @@ def get_test_data_excel():
         filtered = list(x for x in pressure if x.CircleID == i+1)
         pressureList.append(filtered)
 
-    circle_fill(raw_circle, testinfo, circleAsArray, workbook)  # generate circle file
+    circle_fill(raw_circle, testinfo, circleAsArray, pressureList, workbook)  # generate circle file
     col_pressure_fill(raw_pressure, pressureList, workbook)  # generate pressure file
     formula_fill(final, circleAsArray, pressureList, workbook) # generate formula file
 

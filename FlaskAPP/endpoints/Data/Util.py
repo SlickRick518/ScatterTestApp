@@ -4,31 +4,34 @@ from statistics import mean
 def formula_fill(page, circleAsArray, pressureList, workbook):
     row = 0
     col = 1
+
+    averageFormat = workbook.add_format(({'font_color': 'black', 'bg_color': '#c6efce'}))
+    circleFormat = workbook.add_format(({'font_color': 'black', 'bg_color': '#ffc7ce'}))
     # The data for each circle's data is generated per iteration of this loop
     # row starts at 0, increased by 18 each time to format properly in excel
     # col keeps track of the columns in the pressure table
     for i in range(len(circleAsArray)):
         # Write labels and values
-        page.write(row, 0, 'Circle #')
-        page.write(row, 1, 'Symbol')
-        page.write(row, 2, 'Start Time')
-        page.write(row, 3, 'End Time')
-        page.write(row, 4, 'Total Time')
+        page.write(row, 0, 'Circle #', circleFormat)
+        page.write(row, 1, 'Symbol', circleFormat)
+        page.write(row, 2, 'Start Time', circleFormat)
+        page.write(row, 3, 'End Time', circleFormat)
+        page.write(row, 4, 'Total Time', circleFormat)
         page.set_column(2, 8, 20)
-        page.write(row, 5, 'Latency')
-        page.write(row, 6, 'Average Pressure')
-        page.write(row, 7, 'Avg Azimuth Angle')
-        page.write(row, 8, 'Average Altitute')
+        page.write(row, 5, 'Latency', circleFormat)
+        page.write(row, 6, 'Average Pressure', averageFormat)
+        page.write(row, 7, 'Avg Azimuth Angle', averageFormat)
+        page.write(row, 8, 'Average Altitute', averageFormat)
 
-        page.write(row+1, 0, circleAsArray[i].CircleID)
-        page.write(row+1, 1, circleAsArray[i].symbol)
-        page.write(row+1, 2, circleAsArray[i].begin_circle)
-        page.write(row+1, 3, circleAsArray[i].end_circle)
-        page.write(row+1, 4, circleAsArray[i].total_time)
+        page.write(row+1, 0, circleAsArray[i].CircleID, circleFormat)
+        page.write(row+1, 1, circleAsArray[i].symbol, circleFormat)
+        page.write(row+1, 2, circleAsArray[i].begin_circle, circleFormat)
+        page.write(row+1, 3, circleAsArray[i].end_circle, circleFormat)
+        page.write(row+1, 4, circleAsArray[i].total_time, circleFormat)
         if(i != 0):
-            page.write(row+1, 5, circleAsArray[i].begin_circle - circleAsArray[i-1].end_circle)
+            page.write(row+1, 5, circleAsArray[i].begin_circle - circleAsArray[i-1].end_circle, circleFormat)
         else:
-            page.write(row+1, 5, "N/A")
+            page.write(row+1, 5, "N/A", circleFormat)
 
         # Calculate Averages
         pressureSum = 0.0
@@ -41,9 +44,9 @@ def formula_fill(page, circleAsArray, pressureList, workbook):
             altitudeSum += pressureList[i][j].PenAltitude
         
         # Write averages in
-        page.write(row+1, 6, (pressureSum / len(pressureList[i])))
-        page.write(row+1, 7, (azimuthSum / len(pressureList[i])))
-        page.write(row+1, 8, (altitudeSum / len(pressureList[i])))
+        page.write(row+1, 6, (pressureSum / len(pressureList[i])), averageFormat)
+        page.write(row+1, 7, (azimuthSum / len(pressureList[i])), averageFormat)
+        page.write(row+1, 8, (altitudeSum / len(pressureList[i])), averageFormat)
 
         # Creates charts, pulls from the pressure sheet
         pressureChart = workbook.add_chart({'type': 'line'})
@@ -74,36 +77,39 @@ def formula_fill(page, circleAsArray, pressureList, workbook):
         # col increments by 4 to move onto the next entry of circle data in the pressure sheet
         col += 4
 
-def circle_fill(page, testinfo, circleAsArray, workbook):
+def circle_fill(page, testinfo, circleAsArray, pressureList, workbook):
 
-    dateFormat = workbook.add_format({'num_format': 'yyyy-mm-dd'})
-    timeFormat = workbook.add_format({'num_format': 'mm:ss'})
+    circleFormat = workbook.add_format(({'font_color': 'black', 'bg_color': '#ffc7ce'}))
+    frameFormat = workbook.add_format(({'font_color': 'black', 'bg_color': '#c6efce'}))
+    dateFormat = workbook.add_format({'num_format': 'yyyy-mm-dd', 'font_color': 'black', 'bg_color': '#c6efce'})
+    timeFormat = workbook.add_format({'num_format': 'mm:ss', 'font_color': 'black', 'bg_color': '#c6efce'})
     #set up circle info
-    page.write(0, 0, 'Circle #')
-    page.write(0, 1, 'Symbol')
-    page.write(0, 2, 'Start Time')
-    page.write(0, 3, 'End Time')
-    page.write(0, 4, 'Total Time')
-    page.set_column(2, 5, 16)
-    page.write(0, 5, 'Latency')
+    page.write(0, 0, 'Circle #', circleFormat)
+    page.write(0, 1, 'Symbol', circleFormat)
+    page.write(0, 2, 'Start Time', circleFormat)
+    page.write(0, 3, 'End Time', circleFormat)
+    page.write(0, 4, 'Total Time', circleFormat)
+    page.set_column(2, 6, 16)
+    page.write(0, 5, 'Latency', circleFormat)
+    page.write(0, 6, '# of Touchs', circleFormat)
 
     #set up general test info - why isn't this on another sheet?
-    page.write(0, 7, 'TestID')
-    page.write(1, 7, testinfo.TestID)
-    page.write(0, 8, 'PatientID')
-    page.write(1, 8, testinfo.PatientID)
+    page.write(0, 8, 'TestID', frameFormat)
+    page.write(1, 8, testinfo.TestID, frameFormat)
+    page.write(0, 9, 'PatientID', frameFormat)
+    page.write(1, 9, testinfo.PatientID, frameFormat)
     #date is bad
-    page.write(0, 9, 'Date')
-    page.write(1, 9, testinfo.DateTaken, dateFormat)
-    page.write(0, 10, 'DoctorID')
-    page.write(1, 10, testinfo.DoctorID)
-    page.write(0, 11, 'Test')
-    page.write(1, 11, testinfo.TestName)
-    page.write(0, 12, 'Test Length')
-    page.write(1, 12, testinfo.TestLength, timeFormat)
-    page.set_column(7, 10, 15)
-    page.set_column(11, 11, 18)
-    page.set_column(12, 12, 15)
+    page.write(0, 10, 'Date', frameFormat)
+    page.write(1, 10, testinfo.DateTaken, dateFormat)
+    page.write(0, 11, 'DoctorID', frameFormat)
+    page.write(1, 11, testinfo.DoctorID, frameFormat)
+    page.write(0, 12, 'Test', frameFormat)
+    page.write(1, 12, testinfo.TestName, frameFormat)
+    page.write(0, 13, 'Test Length', frameFormat)
+    page.write(1, 13, testinfo.TestLength, timeFormat)
+    page.set_column(8, 11, 15)
+    page.set_column(12, 12, 18)
+    page.set_column(13, 13, 15)
 
     for i in range(len(circleAsArray)):
         page.write(i+1, 0, circleAsArray[i].CircleID)
@@ -115,6 +121,7 @@ def circle_fill(page, testinfo, circleAsArray, workbook):
             page.write(i+1, 5, circleAsArray[i].begin_circle - circleAsArray[i-1].end_circle)
         else:
             page.write(i+1, 5, "N/A")
+        page.write(i+1, 6, len(pressureList[i]))
 
 def col_pressure_fill(page, pressureList, workbook):
     #Circle ID: number of attributes
