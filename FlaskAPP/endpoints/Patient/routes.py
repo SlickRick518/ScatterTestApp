@@ -14,4 +14,9 @@ def index_view():
     else:
         return render_template('Login/login.html', form=LoginForm())
 
-
+@patients.route('/patients/replay/')
+def replay():
+    if current_user.is_authenticated:
+        return render_template('Patient/replay.html')
+    else:
+        return render_template('Login/login.html', form=LoginForm())
